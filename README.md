@@ -1,6 +1,8 @@
 # EchoTrace
 ## Echoes in the Loop: Diagnosing Risks in LLM-Powered Recommender Systems under Feedback Loops
 
+![Framework Architecture](./assets/feedback_loop.png)
+
 This is the official implementation of the paper **Echoes in the Loop: Diagnosing Risks in LLM-Powered Recommender Systems under Feedback Loops** (https://www.arxiv.org/abs/2602.07442).
 
 ---
