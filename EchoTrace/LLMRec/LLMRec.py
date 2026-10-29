@@ -27,6 +27,7 @@ from utility.parser import parse_args
 import Models
 from Models import MM_Model, Decoder  
 from utility.batch_test import *
+import utility.batch_test as batch_test
 from utility.logging import Logger
 from utility.norm import build_sim, build_knn_normalized_graph
 
@@ -429,6 +430,8 @@ def main(data_path, folder):
     args.dataset = folder
     Models.args.data_path = data_path
     Models.args.dataset = folder
+    batch_test.args.data_path = data_path
+    batch_test.args.dataset = folder
     
     data_generator = Data(path=os.path.join(args.data_path, args.dataset), batch_size=args.batch_size)
     set_seed(args.seed)
@@ -443,7 +446,7 @@ def main(data_path, folder):
     return best_candidates, ua_embeddings, ia_embeddings
 
 if __name__ == '__main__':
-    best_candidates, ua_embeddings, ia_embeddings = main()
+    best_candidates, ua_embeddings, ia_embeddings = main(args.data_path, args.dataset)
     # best_candidates를 CPU로 옮기고 numpy 변환
     candidates = best_candidates.cpu().numpy().tolist()
 
@@ -451,7 +454,7 @@ if __name__ == '__main__':
     user2cands = {str(u): cands for u, cands in enumerate(candidates)}
 
     # 저장 경로 설정
-    save_path = "./LLMRec/LLMRec_c/movielens/ml100k_llmrec_format/best_candidates_for_feedback_loop.json"
+    save_path = os.path.join(args.data_path, args.dataset, "best_candidates_for_feedback_loop.json")
 
     with open(save_path, "w") as f:
         json.dump(user2cands, f, indent=2)

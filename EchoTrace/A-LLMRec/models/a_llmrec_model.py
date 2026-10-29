@@ -31,7 +31,10 @@ class A_llmrec_model(nn.Module):
         self.args = args
         self.device = args.device
        
-        with gzip.open(f'./data/{args.rec_pre_trained_data}/{args.rec_pre_trained_data}_text_name_dict.json.gz','rb') as ft:
+        name_dict_path = f'./data/{args.rec_pre_trained_data}/{args.rec_pre_trained_data}_text_name_dict.json.gz'
+        if not os.path.exists(name_dict_path):
+            name_dict_path = f'./data/{args.rec_pre_trained_data}/A-LLMRec_format/{args.rec_pre_trained_data}_text_name_dict.json.gz'
+        with gzip.open(name_dict_path, 'rb') as ft:
             self.text_name_dict = pickle.load(ft)
         
         self.recsys = RecSys(args.recsys, rec_pre_trained_data, self.device)

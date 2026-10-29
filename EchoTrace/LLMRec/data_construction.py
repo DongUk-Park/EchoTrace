@@ -111,8 +111,9 @@ def get_train_matrix(file_path = "./data/books", folder="books_llmrec_format"):
         for items in d.values():
             all_item_ids.update(items)
 
-    n_users = len(all_user_ids)
-    n_items = len(all_item_ids)
+    # Keep IDs as matrix coordinates, including gaps and one-based input IDs.
+    n_users = max(all_user_ids) + 1
+    n_items = max(all_item_ids) + 1
     print(f"n_users={n_users}, n_items={n_items}")
 
     # ====== Build sparse matrix ======
@@ -120,8 +121,7 @@ def get_train_matrix(file_path = "./data/books", folder="books_llmrec_format"):
         mat = sp.dok_matrix((n_users, n_items), dtype=np.float32)
         for user, items in data_dict.items():
             for item in items:
-                if int(item) < n_items:
-                    mat[int(user), int(item)] = 1.0
+                mat[int(user), int(item)] = 1.0
         return mat.tocsr()
 
     train_mat = build_sparse_matrix(train_dict, n_users, n_items)

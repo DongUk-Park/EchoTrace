@@ -17,10 +17,7 @@ import pandas as pd
 import torch
 from sklearn.feature_extraction.text import HashingVectorizer
 
-import LLMRec
 import data_construction
-from LLM_augmentation_construct_prompt import main_generate
-import LightGCN
 
 
 # ------------------
@@ -195,6 +192,8 @@ def _truncate_candidates_by_gt_count(
 
         # 1) 추천 결과에서 먼저 채우기
         for item in rec_candidates:
+            if len(chosen) >= n_rec:
+                break
             item = int(item)
             if item in chosen_set:
                 continue
@@ -287,6 +286,17 @@ def feedback_loop():
     parser.add_argument("--alpha", type=float, default=alpha)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
+
+    # Baseline modules parse their own options on import. Do not let them
+    # consume this feedback loop's command line.
+    original_argv = sys.argv[:]
+    try:
+        sys.argv = [sys.argv[0]]
+        import LLMRec
+        import LightGCN
+        from LLM_augmentation_construct_prompt import main_generate
+    finally:
+        sys.argv = original_argv
 
     set_seed(args.seed)
     print("ENV CUDA_VISIBLE_DEVICES =", os.environ.get("CUDA_VISIBLE_DEVICES"))

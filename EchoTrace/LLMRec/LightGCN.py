@@ -1,4 +1,5 @@
 import datetime
+import pickle
 import math
 import os
 import random
@@ -111,7 +112,7 @@ class LightGCNTrainer(object):
         with torch.no_grad():
             ua_embeddings, ia_embeddings = self.model(self.ui_graph, self.iu_graph)
         # save top-k
-        top_k = 10
+        top_k = min(10, self.n_items)
         _, candidate_indices = torch.topk(torch.matmul(ua_embeddings, ia_embeddings.T), k=top_k, dim=1)
         save_path = os.path.join(self.path, 'candidate_indices')
         with open(save_path, 'wb') as f:
@@ -158,4 +159,4 @@ def main(data_path, folder):
     trainer.train()
 
 if __name__ == '__main__':
-    main()
+    main(lattice_args.data_path, lattice_args.dataset)

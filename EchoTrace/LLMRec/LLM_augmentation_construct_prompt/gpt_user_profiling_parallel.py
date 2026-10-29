@@ -145,7 +145,7 @@ def _call_openai_chat(model: str, prompt: str, temp: float, timeout: int = 30) -
     }
     r = requests.post(url, headers=headers, json=payload, timeout=timeout)
     if r.status_code != 200:
-        raise requests.exceptions.RequestException(f"OpenAI API Error {r.status_code}: {r.text}")
+        raise requests.exceptions.RequestException(f"OpenAI API Error {r.status_code}")
     j = r.json()
     return j["choices"][0]["message"]["content"]
 
@@ -167,7 +167,7 @@ def _call_anthropic_messages(model: str, prompt: str, temp: float, timeout: int 
     }
     r = requests.post(url, headers=headers, json=payload, timeout=timeout)
     if r.status_code != 200:
-        raise requests.exceptions.RequestException(f"Anthropic API Error {r.status_code}: {r.text}")
+        raise requests.exceptions.RequestException(f"Anthropic API Error {r.status_code}")
     j = r.json()
 
     # Anthropic: content = [{"type":"text","text":"..."}, ...]
@@ -186,8 +186,7 @@ def LLM_request(toy_item_attribute, adjacency_list_dict, index, provider, model_
     try:
         prompt = construct_user_prompt(toy_item_attribute, adjacency_list_dict[index], dataset)
         content = call_llm_profile(provider=provider, model=model_type, prompt=prompt, temp=temp, timeout=30)
-        print(f"\n[DEBUG] User Index: {index} Profile Generated:")
-        print(content)
+        print(f"User profile generated: {index}")
         print("-" * 50)
         return index, content
 
@@ -221,7 +220,7 @@ def LLM_embedding_request(
             r = requests.post(url, headers=headers, json=params, timeout=30)
             if r.status_code != 200:
                 raise requests.exceptions.RequestException(
-                    f"OpenAI Embedding Error {r.status_code}: {r.text}"
+                    f"OpenAI Embedding Error {r.status_code}"
                 )
             j = r.json()
             emb = j["data"][0]["embedding"]

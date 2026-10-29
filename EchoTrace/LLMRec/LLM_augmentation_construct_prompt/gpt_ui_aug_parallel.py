@@ -154,7 +154,7 @@ def _call_openai_chat(model: str, prompt: str, sys_msg: str, timeout: int = 20) 
     }
     response = requests.post(url=url, headers=headers, json=params, timeout=timeout)
     if response.status_code != 200:
-        raise requests.exceptions.RequestException(f"OpenAI API Error {response.status_code}: {response.text}")
+        raise requests.exceptions.RequestException(f"OpenAI API Error {response.status_code}")
     message = response.json()
     return message["choices"][0]["message"]["content"]
 
@@ -177,7 +177,7 @@ def _call_anthropic_messages(model: str, prompt: str, sys_msg: str, timeout: int
     }
     response = requests.post(url=url, headers=headers, json=params, timeout=timeout)
     if response.status_code != 200:
-        raise requests.exceptions.RequestException(f"Anthropic API Error {response.status_code}: {response.text}")
+        raise requests.exceptions.RequestException(f"Anthropic API Error {response.status_code}")
     message = response.json()
 
     texts = []

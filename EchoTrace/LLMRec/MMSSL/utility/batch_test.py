@@ -1,3 +1,4 @@
+import os
 import utility.metrics as metrics
 from utility.parser import parse_args
 from utility.load_data import Data
@@ -8,12 +9,12 @@ import pickle
 import numpy as np
 from time import time
 
-cores = multiprocessing.cpu_count() // 5
+cores = max(1, multiprocessing.cpu_count() // 5)
 
 args = parse_args()
 Ks = eval(args.Ks)
 
-data_generator = Data(path=args.data_path + args.dataset, batch_size=args.batch_size)
+data_generator = Data(path=os.path.join(args.data_path, args.dataset), batch_size=args.batch_size)
 USR_NUM, ITEM_NUM = data_generator.n_users, data_generator.n_items
 N_TRAIN, N_TEST = data_generator.n_train, data_generator.n_test
 BATCH_SIZE = args.batch_size
@@ -140,7 +141,7 @@ def test_torch(ua_embeddings, ia_embeddings, users_to_test, is_val, drop_flag=Fa
                 i_g_embeddings = ia_embeddings[item_batch]
                 i_rate_batch = torch.matmul(u_g_embeddings, torch.transpose(i_g_embeddings, 0, 1))
 
-                rate_batch[:, i_start: i_end] = i_rate_batch
+                rate_batch[:, i_start: i_end] = i_rate_batch.detach().cpu().numpy()
                 i_count += i_rate_batch.shape[1]
 
             assert i_count == ITEM_NUM
@@ -151,7 +152,8 @@ def test_torch(ua_embeddings, ia_embeddings, users_to_test, is_val, drop_flag=Fa
             i_g_embeddings = ia_embeddings[item_batch]
             rate_batch = torch.matmul(u_g_embeddings, torch.transpose(i_g_embeddings, 0, 1))
 
-        rate_batch = rate_batch.detach().cpu().numpy()
+        if not batch_test_flag:
+            rate_batch = rate_batch.detach().cpu().numpy()
         user_batch_rating_uid = zip(rate_batch, user_batch, [is_val] * len(user_batch))
 
         batch_result = pool.map(test_one_user, user_batch_rating_uid)

@@ -220,18 +220,19 @@ def data_partition(fname, path=None):
     
     # f = open('./pre_train/sasrec/data/%s.txt' % fname, 'r')
     if path == None:
-        f = open('./data/%s/A-LLMRec_format/%s.txt' % fname, 'r')
+        f = open('./data/%s/A-LLMRec_format/%s.txt' % (fname, fname), 'r')
     else:
         print("Using custom path:", path)
         f = open(path, 'r')
-    for line in f:
-        parts = line.rstrip().split()
-        u = int(parts[0])
-        i = int(parts[1])
+    with f:
+        for line in f:
+            parts = line.rstrip().split()
+            u = int(parts[0])
+            i = int(parts[1])
         
-        usernum = max(u, usernum)
-        itemnum = max(i, itemnum) 
-        User[u].append(i)
+            usernum = max(u, usernum)
+            itemnum = max(i, itemnum)
+            User[u].append(i)
 
     for user in User:
         nfeedback = len(User[user])

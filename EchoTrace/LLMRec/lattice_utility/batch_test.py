@@ -1,3 +1,4 @@
+import os
 import utility.metrics as metrics
 from utility.parser import parse_args
 from utility.load_data import Data
@@ -9,7 +10,7 @@ import numpy as np
 from time import time
 
 Ks = [10, 20, 50]
-cores = multiprocessing.cpu_count() // 5
+cores = max(1, multiprocessing.cpu_count() // 5)
 
 def ranklist_by_heapq(user_pos_test, test_items, rating, Ks):
     item_score = {}
@@ -75,7 +76,7 @@ def get_performance(user_pos_test, r, auc, Ks):
 
 def test_one_user(x):
     args = parse_args()
-    data_generator = Data(path=args.data_path + args.dataset, batch_size=args.batch_size)
+    data_generator = Data(path=os.path.join(args.data_path, args.dataset), batch_size=args.batch_size)
     # user u's ratings for user u
     is_val = x[-1]
     rating = x[0]
@@ -107,7 +108,7 @@ def test_torch(ua_embeddings, ia_embeddings, users_to_test, is_val, drop_flag=Fa
     result = {'precision': np.zeros(len(Ks)), 'recall': np.zeros(len(Ks)), 'ndcg': np.zeros(len(Ks)),
               'hit_ratio': np.zeros(len(Ks)), 'auc': 0.}
     pool = multiprocessing.Pool(cores)
-    data_generator = Data(path=args.data_path + args.dataset, batch_size=args.batch_size)
+    data_generator = Data(path=os.path.join(args.data_path, args.dataset), batch_size=args.batch_size)
     args = parse_args()
     u_batch_size = args.batch_size * 2
     i_batch_size = args.batch_size
@@ -135,7 +136,7 @@ def test_torch(ua_embeddings, ia_embeddings, users_to_test, is_val, drop_flag=Fa
                 i_g_embeddings = ia_embeddings[item_batch]
                 i_rate_batch = torch.matmul(u_g_embeddings, torch.transpose(i_g_embeddings, 0, 1))
 
-                rate_batch[:, i_start: i_end] = i_rate_batch
+                rate_batch[:, i_start: i_end] = i_rate_batch.detach().cpu().numpy()
                 i_count += i_rate_batch.shape[1]
 
             assert i_count == ITEM_NUM
@@ -146,7 +147,8 @@ def test_torch(ua_embeddings, ia_embeddings, users_to_test, is_val, drop_flag=Fa
             i_g_embeddings = ia_embeddings[item_batch]
             rate_batch = torch.matmul(u_g_embeddings, torch.transpose(i_g_embeddings, 0, 1))
 
-        rate_batch = rate_batch.detach().cpu().numpy()
+        if not batch_test_flag:
+            rate_batch = rate_batch.detach().cpu().numpy()
         user_batch_rating_uid = zip(rate_batch, user_batch, [is_val] * len(user_batch))
 
         batch_result = pool.map(test_one_user, user_batch_rating_uid)

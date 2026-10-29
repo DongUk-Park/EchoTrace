@@ -309,7 +309,7 @@ def feedback_loop():
     open(os.path.join(result_root, "candidate_debug.jsonl"), "w").close()
 
     # 고정 실험 설정
-    parts = [5] # [1, 5, 10 ...]
+    parts = [args.feedback_loop_parts]
 
     for part in parts:
         args.feedback_loop_parts = part
