@@ -38,7 +38,7 @@ Please download the datasets from the official sources and place the preprocesse
 | **MovieLens-1M** | `ml-1m` | https://grouplens.org/datasets/movielens/1m/ |
 | **Yelp** | `yelp` | https://business.yelp.com/data/resources/open-dataset/ |
 
-`train.txt` and `label.txt` use the format `user_id item_id timestamp`. Keep interactions in chronological order. For the A-LLMRec Books pipeline, use tab-separated files.
+`train.txt` and `label.txt` use the format `user_id item_id timestamp`. Keep interactions in chronological order.
 
 ---
 
